@@ -3,8 +3,10 @@ from __future__ import unicode_literals
 from django.db import models
 
 
-# Create your models here.
 class Book(models.Model):
+    """
+    Simple Book model, author and category is joined via ManyToMany Field in their own ModelClasses
+    """
     title = models.CharField(max_length=255)
     published_date = models.DateField()
     average_rating = models.DecimalField(max_digits=5, decimal_places=2)
@@ -20,6 +22,9 @@ class Book(models.Model):
 
 
 class Author(models.Model):
+    """
+    Simple Author Model, joins to the Book
+    """
     name = models.CharField(max_length=255)
     books = models.ManyToManyField(Book, related_name='authors')
 
@@ -32,6 +37,9 @@ class Author(models.Model):
 
 
 class Category(models.Model):
+    """
+    Simple Category Model, joins to the Book
+    """
     name = models.CharField(max_length=255)
     books = models.ManyToManyField(Book, related_name='categories')
 
