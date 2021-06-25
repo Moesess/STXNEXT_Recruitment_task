@@ -1,21 +1,26 @@
 from rest_framework import serializers
 
-from .models import Author, Book, Category
+from .models import Book, Category, Author
 
 
-class AuthorSerializer(serializers.HyperlinkedModelSerializer):
+class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Author
-        fields = ['name', 'surname', 'books']
+        fields = ['name', ]
+        extra_kwargs = {'books': {'required': True}}
 
 
-class BookSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Book
-        fields = ['title', 'published_date', 'average_rating', 'ratings_count', 'thumbnail']
-
-
-class CategorySerializer(serializers.HyperlinkedModelSerializer):
+class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ['name', 'books']
+        fields = ['name']
+
+
+class BookSerializer(serializers.ModelSerializer):
+    authors = AuthorSerializer(many=True)
+    categories = CategorySerializer(many=True)
+
+    class Meta:
+        model = Book
+        fields = ['title', 'authors', 'published_date', 'categories', 'average_rating', 'ratings_count', 'thumbnail']
+        extra_kwargs = {'authors': {'required': True}}
