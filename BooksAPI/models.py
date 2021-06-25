@@ -7,6 +7,7 @@ class Book(models.Model):
     """
     Simple Book model, author and category is joined via ManyToMany Field in their own ModelClasses
     """
+    book_id = models.CharField(max_length=255, unique=True, primary_key=True)
     title = models.CharField(max_length=255)
     published_date = models.DateField()
     average_rating = models.DecimalField(max_digits=5, decimal_places=2)
@@ -26,7 +27,7 @@ class Author(models.Model):
     Simple Author Model, joins to the Book
     """
     name = models.CharField(max_length=255)
-    books = models.ManyToManyField(Book, related_name='authors')
+    books = models.ManyToManyField(Book, related_name='authors', blank=True)
 
     class Meta:
         verbose_name = "Author"
@@ -41,7 +42,7 @@ class Category(models.Model):
     Simple Category Model, joins to the Book
     """
     name = models.CharField(max_length=255)
-    books = models.ManyToManyField(Book, related_name='categories')
+    books = models.ManyToManyField(Book, related_name='categories', blank=True)
 
     class Meta:
         verbose_name = "Category"
