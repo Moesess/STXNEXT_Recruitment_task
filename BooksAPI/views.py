@@ -6,33 +6,32 @@ from rest_framework import viewsets, mixins
 from .models import Author, Book, Category
 from .serializers import BookSerializer
 
+from BooksAPI.filtersets import BookFilterSet
+
 
 class BookListView(mixins.ListModelMixin,
+                   mixins.RetrieveModelMixin,
                    viewsets.GenericViewSet):
     """
-    List of all Books we have in database
+    List of Books,
+    can be filtered using eg. ?author="Jeff Barton", ?title="Hobbit", ?published_date="2017"
     """
 
     queryset = Book.objects.all()
     serializer_class = BookSerializer
+    filterset_class = BookFilterSet
+    ordering_fields = ['published_date']
+    # filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
 
 
 def get_data(request):
     response = requests.get("https://www.googleapis.com/books/v1/volumes?q=Hobbit").json()
+
     # For each book in response from api
     for book in response["items"]:
         book_id = book["id"]
         title = book["volumeInfo"]["title"]
         published_date = str(book["volumeInfo"]["publishedDate"])
-        pd = published_date.split("-")
-
-        # handling different data formats
-        if len(pd) == 1:
-            published_date = f'{pd[0]}-01-01'
-        elif len(pd) == 2:
-            published_date = f'{pd[0]}-{pd[1]}-01'
-        else:
-            published_date = f'{pd[0]}-{pd[1]}-{pd[2]}'
 
         average_rating = 0
         ratings_count = 0
