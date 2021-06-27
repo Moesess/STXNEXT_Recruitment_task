@@ -7,9 +7,9 @@ class Book(models.Model):
     """
     Simple Book model, author and category is joined via ManyToMany Field in their own ModelClasses
     """
-    book_id = models.CharField(max_length=255, unique=True, primary_key=True)
+    book_id = models.CharField(max_length=255, unique=True)
     title = models.CharField(max_length=255)
-    published_date = models.DateField()
+    published_date = models.CharField(max_length=10)
     average_rating = models.DecimalField(max_digits=5, decimal_places=2)
     ratings_count = models.DecimalField(max_digits=10, decimal_places=0)
     thumbnail = models.URLField()
