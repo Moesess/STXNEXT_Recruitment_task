@@ -34,7 +34,7 @@ class Author(models.Model):
         verbose_name_plural = "Authors"
 
     def __str__(self):
-        return f'{self.name}'
+        return self.name
 
 
 class Category(models.Model):

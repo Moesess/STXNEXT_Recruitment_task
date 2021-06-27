@@ -29,47 +29,35 @@ def get_data(request):
 
     # For each book in response from api
     for book in response["items"]:
-        book_id = book["id"]
-        title = book["volumeInfo"]["title"]
+        book_id = str(book["id"])
+        title = str(book["volumeInfo"]["title"])
         published_date = str(book["volumeInfo"]["publishedDate"])
 
-        average_rating = 0
-        ratings_count = 0
-        thumbnail = ""
+        average_rating = float(book["volumeInfo"].get("averageRating", 0))
+        ratings_count = int(book["volumeInfo"].get("ratingsCount", 0))
+        thumbnail = str(book["volumeInfo"].get("imageLinks", {}).get("thumbnail", ""))
 
-        # checking if fields exist
-        if "averageRating" in book["volumeInfo"]:
-            average_rating = book["volumeInfo"]["averageRating"]
-
-        if "ratingsCount" in book["volumeInfo"]:
-            ratings_count = book["volumeInfo"]["ratingsCount"]
-
-        if "imageLinks" in book["volumeInfo"]:
-            thumbnail = book["volumeInfo"]["imageLinks"]["thumbnail"]
-
-        Book.objects.get_or_create(
+        Book.objects.update_or_create(
             book_id=book_id,
-            title=title,
-            published_date=published_date,
-            average_rating=average_rating,
-            ratings_count=ratings_count,
-            thumbnail=thumbnail
+            defaults={
+                'title': title,
+                'published_date': published_date,
+                'average_rating': average_rating,
+                'ratings_count': ratings_count,
+                'thumbnail': thumbnail
+            }
         )
 
         b = Book.objects.get(book_id=book_id)
 
-        authors = book["volumeInfo"]["authors"]
-        for author in authors:
-            Author.objects.get_or_create(name=author)
-            a = Author.objects.get(name=author)
+        for author in book["volumeInfo"]["authors"]:
+            a, created = Author.objects.get_or_create(name=author)
             a.books.add(b)
             a.save()
 
         if "categories" in book["volumeInfo"]:
-            categories = book["volumeInfo"]["categories"]
-            for category in categories:
-                Category.objects.get_or_create(name=category)
-                c = Category.objects.get(name=category)
+            for category in book["volumeInfo"]["categories"]:
+                c, created = Category.objects.update_or_create(name=category)
                 c.books.add(b)
                 c.save()
 
