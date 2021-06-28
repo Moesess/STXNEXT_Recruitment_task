@@ -93,9 +93,9 @@ def get_data(request):
                     categories.append(c)
 
     # Custom information
-    res = f"Books created: {len(books)} {[str(x) for x in books]}:\n" \
+    res = f"<pre>Books created: {len(books)}: {[str(x) for x in books]}\n" \
           f"Authors created: {len(authors)}: {[str(x) for x in authors]}\n" \
           f"Categories created: {len(categories)}: {[str(x) for x in categories]}\n" \
-          f"Books updated: {len(updated_books)} {[str(x) for x in updated_books]}:\n"
+          f"Books updated: {len(updated_books)}: {[str(x) for x in updated_books]}</pre>"
 
     return HttpResponse(res)
