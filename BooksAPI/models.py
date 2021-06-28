@@ -10,9 +10,9 @@ class Book(models.Model):
     book_id = models.CharField(max_length=255, unique=True)
     title = models.CharField(max_length=255)
     published_date = models.CharField(max_length=10)
-    average_rating = models.DecimalField(max_digits=5, decimal_places=2)
-    ratings_count = models.DecimalField(max_digits=10, decimal_places=0)
-    thumbnail = models.URLField()
+    average_rating = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+    ratings_count = models.DecimalField(max_digits=10, decimal_places=0, default=0)
+    thumbnail = models.URLField(null=True, blank=True)
 
     class Meta:
         verbose_name = "Book"
