@@ -36,7 +36,7 @@ def get_data(request):
 
     authors = []
     books = []
-    ubooks = []
+    updated_books = []
     categories = []
 
     # For each book in response from api
@@ -59,21 +59,22 @@ def get_data(request):
         })
 
         if bform.is_valid():
+            print(bform.cleaned_data)
             b, created = Book.objects.update_or_create(
                 book_id=book_id,
                 defaults={
-                    'title': title,
-                    'published_date': published_date,
-                    'average_rating': average_rating,
-                    'ratings_count': ratings_count,
-                    'thumbnail': thumbnail
+                    'title': bform.cleaned_data['title'],
+                    'published_date': bform.cleaned_data['published_date'],
+                    'average_rating': bform.cleaned_data['average_rating'],
+                    'ratings_count': bform.cleaned_data['ratings_count'],
+                    'thumbnail': bform.cleaned_data['thumbnail']
                 }
             )
 
             if created:
                 books.append(b)
             else:
-                ubooks.append(b)
+                updated_books.append(b)
 
             for author in book["volumeInfo"]["authors"]:
                 a, created = Author.objects.get_or_create(name=author)
@@ -95,6 +96,6 @@ def get_data(request):
     res = f"Books created: {len(books)} {[str(x) for x in books]}:\n" \
           f"Authors created: {len(authors)}: {[str(x) for x in authors]}\n" \
           f"Categories created: {len(categories)}: {[str(x) for x in categories]}\n" \
-          f"Books updated: {len(ubooks)} {[str(x) for x in ubooks]}:\n"
+          f"Books updated: {len(updated_books)} {[str(x) for x in updated_books]}:\n"
 
     return HttpResponse(res)
