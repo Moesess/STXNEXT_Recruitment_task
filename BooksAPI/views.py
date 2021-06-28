@@ -1,11 +1,11 @@
 import requests
 
 from django.http import HttpResponse
+
 from rest_framework import viewsets, mixins
 
-from .models import Author, Book, Category
-from .serializers import BookSerializer
-
+from BooksAPI.models import Author, Book, Category
+from BooksAPI.serializers import BookSerializer
 from BooksAPI.filtersets import BookFilterSet
 
 
@@ -21,23 +21,28 @@ class BookListView(mixins.ListModelMixin,
     serializer_class = BookSerializer
     filterset_class = BookFilterSet
     ordering_fields = ['published_date']
-    # filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
 
 
 def get_data(request):
-    response = requests.get("https://www.googleapis.com/books/v1/volumes?q=Hobbit").json()
+    response = requests.get(
+        f"https://www.googleapis.com/books/v1/volumes?q={request.POST['q']}").json()
+
+    authors = []
+    books = []
+    ubooks = []
+    categories = []
 
     # For each book in response from api
     for book in response["items"]:
         book_id = str(book["id"])
         title = str(book["volumeInfo"]["title"])
-        published_date = str(book["volumeInfo"]["publishedDate"])
+        published_date = str(book["volumeInfo"].get("publishedDate", ""))
 
         average_rating = float(book["volumeInfo"].get("averageRating", 0))
         ratings_count = int(book["volumeInfo"].get("ratingsCount", 0))
         thumbnail = str(book["volumeInfo"].get("imageLinks", {}).get("thumbnail", ""))
 
-        Book.objects.update_or_create(
+        b, created = Book.objects.update_or_create(
             book_id=book_id,
             defaults={
                 'title': title,
@@ -48,17 +53,31 @@ def get_data(request):
             }
         )
 
-        b = Book.objects.get(book_id=book_id)
+        if created:
+            books.append(b)
+        else:
+            ubooks.append(b)
 
         for author in book["volumeInfo"]["authors"]:
             a, created = Author.objects.get_or_create(name=author)
             a.books.add(b)
             a.save()
 
+            if created:
+                authors.append(a)
+
         if "categories" in book["volumeInfo"]:
             for category in book["volumeInfo"]["categories"]:
-                c, created = Category.objects.update_or_create(name=category)
+                c, created = Category.objects.get_or_create(name=category)
                 c.books.add(b)
                 c.save()
 
-    return HttpResponse("")
+                if created:
+                    categories.append(c)
+
+    res = f"Books created: {len(books)} {[str(x) for x in books]}:\n" \
+          f"Authors created: {len(authors)}: {[str(x) for x in authors]}\n" \
+          f"Categories created: {len(categories)}: {[str(x) for x in categories]}\n" \
+          f"Books updated: {len(ubooks)} {[str(x) for x in ubooks]}:\n"
+
+    return HttpResponse(res)
