@@ -1,0 +1,29 @@
+{% extends "rest_framework/base.html" %}
+
+{% block style %}
+    {{ block.super }}
+    <style>
+        form[data-method = "OPTIONS"]{
+            display: none;
+        }
+    </style>
+{% endblock %}
+
+{% block branding %}
+    <span class="navbar-brand">STX-NEXT Recruitment task, REST API</span>
+{% endblock %}
+
+{% block userlinks %}
+    <form method="POST" action="{% url 'post_data' %}">
+    {% csrf_token %}
+        <input type="hidden" value="Hobbit" name="q">
+        <input type="submit" class="btn btn-sm btn-primary" value="STARTING DATA" style="width: 150px; margin-bottom: 1px">
+    </form>
+
+    <form method="POST" action="{% url 'post_data' %}">
+    {% csrf_token %}
+        <input type="hidden" value="war" name="q">
+        <input type="submit" class="btn btn-sm btn-primary" value="TASK POST /db" style="width: 150px;">
+    </form>
+{% endblock %}
+
