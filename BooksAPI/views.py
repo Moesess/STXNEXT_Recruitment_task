@@ -59,7 +59,6 @@ def get_data(request):
         })
 
         if bform.is_valid():
-            print(bform.cleaned_data)
             b, created = Book.objects.update_or_create(
                 book_id=book_id,
                 defaults={
